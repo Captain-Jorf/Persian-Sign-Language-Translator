@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
-from .constants import DEFAULT_SEQUENCE_LENGTH, TWO_HAND_VECTOR_SIZE
+from .constants import DEFAULT_SEQUENCE_LENGTH
 from .features import resample_sequence
 
 
@@ -26,15 +26,20 @@ class SignSample:
             meta=dict(self.meta),
         )
 
-    def validate(self) -> None:
+    def validate(self, expected_frame_size: int | None = None) -> None:
         if not self.label.strip():
             raise ValueError("sample label cannot be empty")
         if not self.frames:
             raise ValueError("sample must contain at least one frame")
+        frame_size = len(self.frames[0])
+        if frame_size == 0:
+            raise ValueError("frame vectors cannot be empty")
+        if expected_frame_size is not None and frame_size != expected_frame_size:
+            raise ValueError(f"frame 0 has {frame_size} values, expected {expected_frame_size}")
         for frame_index, frame in enumerate(self.frames):
-            if len(frame) != TWO_HAND_VECTOR_SIZE:
+            if len(frame) != frame_size:
                 raise ValueError(
-                    f"frame {frame_index} has {len(frame)} values, expected {TWO_HAND_VECTOR_SIZE}"
+                    f"frame {frame_index} has {len(frame)} values, expected {frame_size}"
                 )
 
     def to_json(self) -> str:

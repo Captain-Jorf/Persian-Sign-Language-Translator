@@ -22,17 +22,13 @@ So the first win is not only the model. The first win is a clean pipeline for co
 - Unit tests
 - PyInstaller build script and GitHub Actions workflow for a Windows `.exe`
 
-## Current honesty check
+## Dataset: ISLR101
 
-This repo does **not** ship a real public PSL dataset yet. The included toy data is synthetic and only exists to test the code path. Do not report toy-data accuracy as model accuracy. That would be nonsense, and honestly a bit shameful.
+The project now targets **ISLR101** (`arXiv:2503.12451`): 4,614 isolated Iranian Sign Language videos, 101 classes, 10 signers, 800×600 RGB at 25 FPS, plus OpenPose skeleton data. The paper reports 97.01% top-1 for their MobileNetV2 + Transformer visual baseline and 94.02% for their best skeleton baseline.
 
-Target for the first real release:
+Small catch, but an important one: the paper says the dataset is available from the Social & Cognitive Robotics Laboratory archive upon request for academic/research use. So I cannot honestly download and commit the full dataset from arXiv itself. What I added is the real importer/training path for the OpenPose skeleton release once the archive is placed under `data/raw/ISLR101`.
 
-- 50 common PSL words
-- 10 different signers
-- signer-wise train/test split
-- over 90% top-1 accuracy on held-out signers for the core vocabulary
-- public curated landmark dataset
+Toy data in this repo is only for smoke testing. Do not report toy-data accuracy as research accuracy. That would be nonsense, and honestly a bit shameful.
 
 ## Install
 
@@ -63,9 +59,12 @@ pip install -r requirements-dev.txt
 This uses fake landmark data. It proves the pipeline runs, nothing more.
 
 ```bash
-python -m psl_translator make-toy-data --out data/demo/toy_samples.jsonl
-python -m psl_translator stats data/demo/toy_samples.jsonl
-python -m psl_translator train --dataset data/demo/toy_samples.jsonl --model-out models/prototype_model.json
+python scripts/train_demo_and_report.py
+python -m psl_translator stats data/demo/toy_train.jsonl
+python -m psl_translator evaluate \
+  --dataset data/demo/toy_eval.jsonl \
+  --model models/prototype_model.json \
+  --report-dir reports/demo
 python -m unittest discover -s tests
 ```
 
@@ -128,7 +127,43 @@ Each line is one labeled sequence:
 }
 ```
 
-A frame must contain 126 values. Missing hands are zero-filled. Raw videos should stay out of git unless they are tiny curated examples; they get heavy fast.
+A MediaPipe frame contains 126 values. ISLR101 OpenPose skeleton frames contain 201 values: 25 body points plus both hands, each with x/y/confidence. The model code accepts both as long as one dataset split uses a consistent feature size. Raw videos should stay out of git unless they are tiny curated examples; they get heavy fast.
+
+## Train on ISLR101 skeleton data
+
+Expected manifest columns are flexible because dataset archives rarely arrive politely:
+
+```text
+label/gloss/class/sign, signer/signer_id/subject, skeleton_path/keypoints_path/openpose_path, split/subset
+```
+
+Convert splits:
+
+```bash
+python -m psl_translator islr101-info
+python -m psl_translator convert-islr101 \
+  --manifest data/raw/ISLR101/manifest.csv \
+  --root data/raw/ISLR101 \
+  --split train \
+  --out data/processed/islr101_train.jsonl
+python -m psl_translator convert-islr101 \
+  --manifest data/raw/ISLR101/manifest.csv \
+  --root data/raw/ISLR101 \
+  --split test \
+  --out data/processed/islr101_test.jsonl
+```
+
+Train and generate visual results:
+
+```bash
+python -m psl_translator train-report \
+  --train-dataset data/processed/islr101_train.jsonl \
+  --eval-dataset data/processed/islr101_test.jsonl \
+  --model-out models/islr101_prototype_model.json \
+  --report-dir reports/islr101
+```
+
+Open `reports/islr101/index.html` for the visual report. For the demo run already committed in this repo, see `reports/demo/index.html`.
 
 ## Build executable
 
@@ -160,6 +195,9 @@ python -m psl_translator text-to-sign "سلام دکتر کمک"
 python -m psl_translator make-toy-data --out data/demo/toy_samples.jsonl
 python -m psl_translator stats data/demo/toy_samples.jsonl
 python -m psl_translator train --dataset data/demo/toy_samples.jsonl --model-out models/prototype_model.json
+python -m psl_translator evaluate --dataset data/demo/toy_eval.jsonl --model models/prototype_model.json --report-dir reports/demo
+python -m psl_translator islr101-info
+python -m psl_translator convert-islr101 --manifest data/raw/ISLR101/manifest.csv --root data/raw/ISLR101 --out data/processed/islr101_train.jsonl --split train
 python -m psl_translator predict-json --model models/prototype_model.json --frames-json sample_frames.json
 python -m psl_translator collect --label "آب" --signer-id s02
 python -m psl_translator camera --model models/prototype_model.json

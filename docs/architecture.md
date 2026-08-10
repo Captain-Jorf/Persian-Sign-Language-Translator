@@ -40,7 +40,8 @@ JSONL, one sample per line:
 }
 ```
 
-Each frame is a 126-value vector: 21 landmarks * 3 coordinates * 2 hands.
+MediaPipe webcam frames are 126-value vectors: 21 landmarks * 3 coordinates * 2 hands.
+ISLR101 OpenPose frames are 201-value vectors: 25 body + 21 left hand + 21 right hand, each with x/y/confidence.
 Missing hands are zero-filled. Raw videos should stay outside git; landmarks are
 small enough to review and version when they are curated.
 

@@ -10,9 +10,12 @@ from . import __version__
 from .camera import collect_samples, run_realtime_translation
 from .dataset import dataset_stats, load_jsonl, write_jsonl
 from .dictionary import known_words, sentence_to_sign_tokens
+from .islr101 import convert_manifest_to_jsonl, facts as islr101_facts
+from .metrics import evaluate_model
 from .model import PrototypeSequenceClassifier
+from .reporting import write_evaluation_report
 from .toy_data import make_toy_samples
-from .trainer import train_prototype_model
+from .trainer import train_evaluate_report, train_prototype_model
 
 
 def _print_json(payload: object) -> None:
@@ -54,6 +57,32 @@ def cmd_stats(args: argparse.Namespace) -> int:
 def cmd_train(args: argparse.Namespace) -> int:
     report = train_prototype_model(args.dataset, args.model_out)
     _print_json(report)
+    return 0
+
+
+def cmd_train_report(args: argparse.Namespace) -> int:
+    report = train_evaluate_report(args.train_dataset, args.eval_dataset, args.model_out, args.report_dir)
+    _print_json(report)
+    return 0
+
+
+def cmd_evaluate(args: argparse.Namespace) -> int:
+    model = PrototypeSequenceClassifier.load(args.model)
+    samples = load_jsonl(args.dataset)
+    result, _ = evaluate_model(model, samples)
+    paths = write_evaluation_report(result, args.report_dir, title=args.title)
+    _print_json({"accuracy": result.accuracy, "sample_count": result.sample_count, "report": paths})
+    return 0
+
+
+def cmd_islr101_info(_: argparse.Namespace) -> int:
+    _print_json(islr101_facts())
+    return 0
+
+
+def cmd_convert_islr101(args: argparse.Namespace) -> int:
+    count = convert_manifest_to_jsonl(args.manifest, args.root, args.out, split=args.split)
+    _print_json({"converted_samples": count, "out": args.out})
     return 0
 
 
@@ -118,6 +147,30 @@ def build_parser() -> argparse.ArgumentParser:
     train.add_argument("--dataset", required=True)
     train.add_argument("--model-out", default="models/prototype_model.json")
     train.set_defaults(func=cmd_train)
+
+    train_report = subparsers.add_parser("train-report", help="train, evaluate, and write visual report files")
+    train_report.add_argument("--train-dataset", required=True)
+    train_report.add_argument("--eval-dataset", required=True)
+    train_report.add_argument("--model-out", default="models/prototype_model.json")
+    train_report.add_argument("--report-dir", default="reports/latest")
+    train_report.set_defaults(func=cmd_train_report)
+
+    evaluate = subparsers.add_parser("evaluate", help="evaluate a saved model and write SVG/HTML report")
+    evaluate.add_argument("--dataset", required=True)
+    evaluate.add_argument("--model", required=True)
+    evaluate.add_argument("--report-dir", default="reports/latest")
+    evaluate.add_argument("--title", default="Persian Sign Language Model Report")
+    evaluate.set_defaults(func=cmd_evaluate)
+
+    islr_info = subparsers.add_parser("islr101-info", help="show ISLR101 dataset facts from arXiv:2503.12451")
+    islr_info.set_defaults(func=cmd_islr101_info)
+
+    convert_islr = subparsers.add_parser("convert-islr101", help="convert ISLR101 OpenPose skeleton files to JSONL")
+    convert_islr.add_argument("--manifest", required=True)
+    convert_islr.add_argument("--root", required=True)
+    convert_islr.add_argument("--out", required=True)
+    convert_islr.add_argument("--split")
+    convert_islr.set_defaults(func=cmd_convert_islr101)
 
     predict = subparsers.add_parser("predict-json", help="predict from a JSON file containing frame vectors")
     predict.add_argument("--model", required=True)
