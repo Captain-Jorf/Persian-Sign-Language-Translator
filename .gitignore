@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+env/
+
+# Build outputs
+build/
+dist/
+*.spec
+*.spec.bak
+
+# Local datasets and trained weights can get big quickly.
+data/raw/
+data/processed/
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.h5
+models/*.keras
+models/*.joblib
+
+# Keep only tiny demo artifacts under version control.
+!data/demo/.gitkeep
+!models/.gitkeep
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

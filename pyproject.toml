@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "persian-sign-language-translator"
+version = "0.1.0"
+description = "Persian Sign Language translator toolkit with MediaPipe landmark extraction and sequence-model training hooks."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Alireza Ranjbar" }]
+license = { text = "MIT" }
+keywords = ["persian", "sign-language", "mediapipe", "opencv", "gru", "lstm"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+psl-translator = "psl_translator.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["psl_translator*"]
+
+[tool.ruff]
+line-length = 100
+src = ["psl_translator", "tests", "scripts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
