@@ -1,0 +1,5 @@
+# Runtime stack for webcam mode.
+# The core CLI can run without these, but real-time translation needs them.
+opencv-python>=4.9
+mediapipe>=0.10
+numpy>=1.24

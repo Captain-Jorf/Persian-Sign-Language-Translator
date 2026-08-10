@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Persian Sign Language Model Report</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #020617; color: #e5e7eb; }
+    main { max-width: 1100px; margin: 32px auto; padding: 0 18px 48px; }
+    .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 18px; padding: 22px; margin: 18px 0; }
+    .metric { font-size: 42px; font-weight: 800; color: #22c55e; }
+    img { max-width: 100%; border-radius: 14px; border: 1px solid #1e293b; }
+    code { color: #93c5fd; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Persian Sign Language Model Report</h1>
+  <section class="card">
+    <div>Top-1 accuracy</div>
+    <div class="metric">100.00%</div>
+    <p>9 evaluated samples, 3 labels.</p>
+  </section>
+  <section class="card">
+    <h2>Confusion matrix</h2>
+    <img src="confusion_matrix.svg" alt="Confusion matrix" />
+  </section>
+  <section class="card">
+    <h2>Per-label accuracy</h2>
+    <img src="per_label_accuracy.svg" alt="Per-label accuracy" />
+  </section>
+  <section class="card">
+    <h2>Raw metrics</h2>
+    <p>See <code>metrics.json</code>. Small, boring, easy to diff. My preferred kind of report.</p>
+  </section>
+</main>
+</body>
+</html>
