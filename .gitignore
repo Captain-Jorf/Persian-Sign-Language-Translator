@@ -1,4 +1,4 @@
-# Python
+﻿# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -11,6 +11,8 @@ htmlcov/
 
 # Environments
 .venv/
+.venv311/
+.packvenv/
 venv/
 env/
 
@@ -18,9 +20,13 @@ env/
 build/
 dist/
 *.spec
-*.spec.bak
 
-# Local datasets and trained weights can get big quickly.
+# Release binaries
+release/*.exe
+release/PersianSignLanguageTranslator/
+release/Run_PersianSignLanguageTranslator.bat
+
+# Local datasets and generated training files
 data/raw/
 data/processed/
 models/*.pt
@@ -30,7 +36,7 @@ models/*.h5
 models/*.keras
 models/*.joblib
 
-# Keep only tiny demo artifacts under version control.
+# Keep demo/report files if already committed intentionally
 !data/demo/.gitkeep
 !models/.gitkeep
 

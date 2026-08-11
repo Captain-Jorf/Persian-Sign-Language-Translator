@@ -212,3 +212,23 @@ Python, OpenCV, MediaPipe Hands, sequence preprocessing, GRU/LSTM hooks with PyT
 Early but usable. The scaffolding is clean enough to build on. The painful part is next: recording real PSL data with enough signer variation, bad lighting, camera angles, and all the ugly little things that make a model survive outside a notebook.
 
 Like Saadi said in a different context, the road matters. Here the road is the dataset.
+
+## Current Model Status
+
+This repository currently includes:
+
+- GUI desktop app
+- Persian text-to-sign gloss prototype
+- Webcam pipeline using OpenCV and MediaPipe
+- Dataset adapters and reporting tools
+- Demo prototype model for smoke testing
+- Support scripts for training on real datasets
+
+Important: the bundled `models/prototype_model.json` is a demo model trained on synthetic toy data. It is not a production Persian Sign Language model.
+
+For real Iranian Sign Language recognition, the project supports two paths:
+
+1. Glove-based ISL recognition using public Perception Neuron sensory-glove data.
+2. RGB/video-based ISL recognition when access to ISLR101 or a similar Iranian Sign Language video dataset is available.
+
+This is a research/prototype project, not a finished assistive product yet.
